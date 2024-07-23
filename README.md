@@ -1,11 +1,11 @@
-## Why Are Unruly Airline Passengers More Common Than Ever?
+## Do Flight Delays Lead Increase the Likelihood That Your Baggage Will Be Mishandled?
 
-#### Background: In the last four years, there has been a substantial increase in unruly passenger behavior on airlines. Many factors have been suggested to contribute to this increase, including flight delay times, overbooking seats, alcohol consumption, and changing social norms since the pandemic. The central question addressed in the proposed research is: why is unruly passenger behavior on airlines more common than ever? 
-#### The proposed analysis will utilize flight data, including records of delays and cancellations, associated passenger disturbances, and other surrounding factors. The analysis will be conducted using R, with the predictor variable being Delay Time/Cancellation. Potential feature variables include flight duration, passenger demographics, and peak season/off season.
+#### Background: If you’re one of the millions of people in the U.S. who travel by airline, then you’re probably no stranger to one, if not both of these persistent issues: flight delays and the mishandling of your baggage. Flight delays can leave you languishing in airports, missing connecting flights and ruining plans, while baggage mishandling can strand you without essentials or treasured possessions. Ultimately, both delays and mishandling cost the customer time and money, undermining the travel experience. Despite its prevalence, the relationship between flight delays and baggage mishandling does not appear to have been well-explored. These seemingly unrelated and highly problematic occurrences may in fact be connected in ways that are not immediately apparent. This project will investigate the relationship between these two issues with the goal of uncovering patterns or correlations. In doing so, we hope to provide information that will allow the customer to make more informed decisions about their travel plans and prepare for potential disruptions, potentially mitigating considerable stress and unexpected costs.
 
+#### The proposed analysis will utilize flight data, including records of delays and cancellations,  The analysis will be conducted using R, with the predictor variable being Delay Time/Cancellation. Potential feature variables include flight date, cancellation status, delay times, and mishandled baggage reported.
 
-#### Research Question: Why Are Unruly Airline Passengers More Common Than Ever?
+#### Research Question: Do Flight Delays Lead Increase the Likelihood That Your Baggage Will Be Mishandled?
 
-#### Hypothesis: Passengers are more likely to behave unruly and cause disturbances when flights are delayed or canceled.
+#### Hypothesis: Baggage on flights that have been delayed or canceled is more likely to be mishandled. We therefore expect a significant positive correlation between these variables.
 
-#### Predictions: Unruly passenger behavior is more likely to occur when flights are delayed or canceled. For every hour a flight is delayed and a passenger has to wait before boarding a new flight, there is a 10% increase in the chance that they will exhibit unruly behavior.
+#### Predictions:  For every 15 minutes a flight is delayed, there is a 5% increase in the likelihood that baggage will be mishandled. If a flight is canceled, the risk increases by 20%.
