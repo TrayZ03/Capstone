@@ -5,6 +5,7 @@
 library(readr)
 library(tidyverse)
 library(car)
+library(mice)
 
 ######### Prepping flight delay data ############
 # load flight delay dataset as CSV 
@@ -37,13 +38,51 @@ sum(is.na(mishandled_data$MKT_CARRIER_FLAG)) # 328
 # mishandling summary statistics
 summary(mishandled_data)
 
-# dealing with missing values - check the distribution of each variable with NAs before & after imputation
-## NEXT STEP: use KNN (or another appropriate method) to fill in the missing values
 
-# distribution of passenger variable
+# dealing with missing values - check the distribution of each variable with NAs before & after imputation
+## NEXT STEP: decide on a missing value imputation method appropriate for the dataset. Too many missing values to use KNN
+## Have tried: KNN, mice (linear regression, ridge regression, predictive mean matching, classification and regression trees)
+
+# First check the variance of each predictor variable - ones with variance close to 0 can be removed
+variances <- apply(mishandled_data, 2, var, na.rm = TRUE)
+
+# Display the variances - carrier and carrier_id are redundant, can be removed
+variances
+
+# remove columns unique_carrier and unique_carrier name, contain the same info as carrier and carrier_id
+mishandled_data <- mishandled_data[, -c(7, 8)]
+
+# set the imputation methods for each variable
+methods <- make.method(mishandled_data)
+
+# do not include form type in the imputation
+methods["FORM_TYPE"] <- "none"
+
+# set classification and regression trees as the method for other variables
+methods[names(methods) != "FORM_TYPE"] <- "cart"
+
+# current method: trying the mice package and classification and regression trees to impute values
+imputed_data_mice <- mice(mishandled_data, method = methods, m = 1)
+
+# Complete the dataset by filling in the missing values
+mishandled_data_comp <- complete(imputed_data_mice)
+
+# Check the first few rows of the completed data
+head(mishandled_data_comp)
+sum(is.na(mishandled_data_comp))
+
+####### mishandled_baggage variable graphs pre- and post-imputation ############
+# distribution of passenger variable before imputation
 ggplot(mishandled_data, aes(PASSENGERS)) +
   geom_histogram(color = "black", fill = "#0099F8") +
   ggtitle("Passenger Variable Distribution") + 
+  theme_classic() +
+  theme(plot.title = element_text(size = 18))
+
+# distribution of passenger variable after imputation
+ggplot(mishandled_data_comp, aes(PASSENGERS)) +
+  geom_histogram(color = "black", fill = "#8A9A5B") +
+  ggtitle("Post-Imputation Passenger Variable Distribution") + 
   theme_classic() +
   theme(plot.title = element_text(size = 18))
 
@@ -54,10 +93,24 @@ ggplot(mishandled_data, aes(ENPLANED_BAGGAGE)) +
   theme_classic() +
   theme(plot.title = element_text(size = 18))
 
+# distribution of enplaned_baggage variable after imputation
+ggplot(mishandled_data_comp, aes(ENPLANED_BAGGAGE)) +
+  geom_histogram(color = "black", fill = "#8A9A5B") +
+  ggtitle("Post-Imputation Enplaned Baggage Distribution") + 
+  theme_classic() +
+  theme(plot.title = element_text(size = 18))
+
 # distribution of mishandled_wchr_sctr
 ggplot(mishandled_data, aes(MISHANDLED_WCHR_SCTR)) +
   geom_histogram(color = "black", fill = "#0099F8") +
-  ggtitle("Mishandled Wheelchair/Scooter Variable Distribution") + 
+  ggtitle("Mishandled Wheelchair/Scooter Distribution") + 
+  theme_classic() +
+  theme(plot.title = element_text(size = 18))
+
+# distribution of mishandled_wchr_sctr variable after imputation
+ggplot(mishandled_data_comp, aes(MISHANDLED_WCHR_SCTR)) +
+  geom_histogram(color = "black", fill = "#8A9A5B") +
+  ggtitle("Post-Imputation Mishandled Wheelchair/Scooter Distribution") + 
   theme_classic() +
   theme(plot.title = element_text(size = 18))
 
@@ -68,6 +121,13 @@ ggplot(mishandled_data, aes(ENPLANED_WCHR_SCTR)) +
   theme_classic() +
   theme(plot.title = element_text(size = 18))
 
+# distribution of enplaned_wchr_sctr variable after imputation
+ggplot(mishandled_data_comp, aes(ENPLANED_WCHR_SCTR)) +
+  geom_histogram(color = "black", fill = "#8A9A5B") +
+  ggtitle("Post-Imputation Enplaned Wheelchair/Scooter Distribution") + 
+  theme_classic() +
+  theme(plot.title = element_text(size = 18))
+
 # distribution of form_type
 ggplot(mishandled_data, aes(FORM_TYPE)) +
   geom_histogram(color = "black", fill = "#0099F8", stat = "count") +
@@ -75,12 +135,28 @@ ggplot(mishandled_data, aes(FORM_TYPE)) +
   theme_classic() +
   theme(plot.title = element_text(size = 18))
 
+# distribution of form_type variable after imputation
+ggplot(mishandled_data_comp, aes(FORM_TYPE)) +
+  geom_histogram(color = "black", fill = "#8A9A5B") +
+  ggtitle("Post-Imputation Form Type Distribution") + 
+  theme_classic() +
+  theme(plot.title = element_text(size = 18))
+## Imputation caused issues with form_type - remove it from the list of variables to undergo this method of imputation, find an alternative
+
 # distribution of mkt_carrier_flag
 ggplot(mishandled_data, aes(MKT_CARRIER_FLAG)) +
   geom_histogram(color = "black", fill = "#0099F8", stat = "count") +
   ggtitle("Market Carrier Flag Variable Distribution") + 
   theme_classic() +
   theme(plot.title = element_text(size = 18))
+
+# distribution of mkt_carrier_flag variable after imputation
+ggplot(mishandled_data_comp, aes(MKT_CARRIER_FLAG)) +
+  geom_histogram(color = "black", fill = "#8A9A5B") +
+  ggtitle("Post-Imputation Market Carrier Flag Distribution") + 
+  theme_classic() +
+  theme(plot.title = element_text(size = 18))
+# Edit this graph later - poor formatting but gets point across
 
 ######### Aggregating delay data and merging datasets ############
 ## move forward with merging datasets:
@@ -123,14 +199,14 @@ summary(merged_agg_data)
 numeric_data_subset <- merged_agg_data %>%
   select_if(c())
 
-head(numeric_data_subset)
+head(numeric_data_subset) # shows that there are still issues with ENPLANED_BAGGAGE, MISHANDLED_WCHR_SCTR, and ENPLANED_WCHR_SCTR
 
 ######### Preliminary analysis of monthly merged data #############
 # make a correlation matrix of the numeric variables
 correlation_matrix <- cor(numeric_data_subset)
-print(correlation_matrix)
+print(correlation_matrix) # after messing around with imputation - there are a lot of NAs on this correlation matrix
 
-# look into collinearity and other potential issues
+# Next steps: examine multicollinearity, create an unsupervised learning model, continue exploring interesting patterns in the data
 # variables of interest: mishandled_baggage/avg_depdelay, mishandled_baggage/avg_arrdelay
 linear_model <- lm(data = numeric_data_subset, formula = as.formula(paste("~ .")))
 
