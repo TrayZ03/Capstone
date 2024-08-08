@@ -15,7 +15,7 @@
 To run this project, follow these steps:
 
 1. *Clone the repo* to your environment.
-2. *Download the datasets*. The datasets are too large for GitHub's standard 50Mb limit. They can be [downloaded here](<drive-link-goes-here>).
+2. *Download the datasets*. The datasets are too large for GitHub's standard 50Mb limit. They can be [downloaded here](https://drive.google.com/drive/folders/1PZoEmxvO38UAgzIgKhfDqfICzB_NzIGV?usp=sharing).
 3. *Move datasets to the `data/` directory and unzip.
 4. *Set `PROJ_PATH` in `/scripts/main.R`*. This project path variable should point to the root directory of the repo in your environment.
 4. *Run `/scripts/main.R`*. This script performs all data processing and modeling in sequence -- it takes a while.
