@@ -20,8 +20,11 @@ To run this project, follow these steps:
 4. *Set `PROJ_PATH` in `/scripts/main.R`*. This project path variable should point to the root directory of the repo in your environment.
 4. *Run `/scripts/main.R`*. This script performs all data processing and modeling in sequence -- it takes a while.
 
-NB: Each script can be run independently but currently you need to set `PROJ_PATH` in individually in each script.
+***Notes***: 
 
-NB: All scripts are called by `main.R` except `scripts/prelim_eda.R` which generates EDA plots.
+- Each script can be run independently but currently you need to set `PROJ_PATH` in individually in each script.
+- All scripts are called by `main.R` except `/scripts/data-merge-csvs-online` and `scripts/prelim_eda.R`
+- `/scripts/data-merge-csvs-online` merges large .csvs and will not run - it depends on a large number of large datasets which are currently not available at the Drive link above.
+- `scripts/prelim_eda.R` generates EDA plots.
 
 
