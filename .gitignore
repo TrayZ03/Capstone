@@ -57,5 +57,4 @@ rsconnect/
 *.zip
 *.csv
 
-# script for merging per-month on-time flight data
-data-merge-csvs-ontime.R
+
