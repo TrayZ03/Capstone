@@ -1,8 +1,7 @@
 # !/usr/local/bin/Rscript
 
 # source constants
-# PROJ_PATH <- "/Users/home/Google Drive/My Drive/Sidekick/Active Clients/TraceyZicherman@sidekick/DSECapstone/super-sniffle"
-PROJ_PATH <- "/cloud/project"
+PROJ_PATH <- "C:\\Users\\trace\\OneDrive\\Documents\\Capstone\\Capstone-Repo-Shared" # change project path for local environment
 source(file.path(PROJ_PATH, "constants.R"))
 
 

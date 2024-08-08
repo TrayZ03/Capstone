@@ -1,41 +1,22 @@
 # Exploratory Data Analysis
 # Team Alpha: Jess and Tracey
 
-# paths
-# PROJ_PATH <- "/cloud/project" # path for Posit
-# PROJ_PATH <- "" # Jess's local working directory
-PROJ_PATH <- "C:\\Users\\trace\\OneDrive\\Documents\\Capstone\\Capstone-Repo-Shared" # Tracey's local working directory
-setwd(PROJ_PATH)
+# source constants
+PROJ_PATH <- "C:\\Users\\trace\\OneDrive\\Documents\\Capstone\\Capstone-Repo-Shared" # change project path for local environment
+source(file.path(PROJ_PATH, "constants.R"))
 
-# on-time data constants
-ONTIME_DATA_FILE <- "Cleaned_On_Time_Marketing_Carrier_On_Time_Performance_January_2018_December_2021.csv"
-ONTIME_FEATURES <- c("YEAR", "MONTH", "CARRIER", "CARRIERDELAY", "WEATHERDELAY", "LATEAIRCRAFTDELAY",
-                     "SECURITYDELAY", "NASDELAY", "CANCELLED", "DIVERTED", "ARRDELAY", "DEPDELAY")
-
-# baggage data constants
-BAGGAGE_DATA_FILE <- "Commercial_Aviation_-_Mishandled_Baggage_and_Mishandled_Wheelchairs_and_Scooter_20240717.csv"
-BAGGAGE_FEATURES <- c("YEAR", "MONTH", "CARRIER", "PASSENGERS", "MISHANDLED_BAGGAGE")
 
 # download necessary libraries
 library(tidyverse)
 
 ######### Prepping flight delay data ############
 # load flight delay dataset as CSV 
-ontime_data <- read_csv(ONTIME_DATA_FILE) %>% 
-  select(all_of(ONTIME_FEATURES))
-
-View(ontime_data) # 26.5mil x 12
+ontime_data <- read_csv(CLEAN_ONTIME_DATA_FILE) %>% 
+  select(all_of(ONTIME_FEATURES)) %>% # select proposed features
 
 # check for missing values 
 ontime_missing <- ontime_data %>%
   summarize(across(everything(), ~ sum(is.na(.)), .names = "missing_{col}"))
-View(ontime_missing)
-
-# 2 missing - omit them
-ontime_data %>% na.omit(ontime_data)
-
-# save cleaned file to disk
-write.csv(ontime_data, ONTIME_DATA_FILE)
 
 print(summary(ontime_data))
 
@@ -44,23 +25,16 @@ print(summary(ontime_data))
 mishandled_data <- read_csv(BAGGAGE_DATA_FILE) %>% 
   select(BAGGAGE_FEATURES) %>% # select proposed features
   rename_with(~ str_to_upper(.)) # convert columns to upper case
-  
-View(mishandled_data) # 1083 x 5
 
 # check for missing values
 mishandled_missing <- mishandled_data %>%
   summarize(across(everything(), ~ sum(is.na(.)), .names = "missing_{col}"))
-View(mishandled_missing)
 
 # Visual inspection reveals PASSENGERS is completely missing for years 2019-2021, 
 # these should be dropped in cleaning and preprocessing. Here's code to prove it
 mishandled_missing_by_year <- mishandled_data %>%
   group_by(YEAR) %>%
   summarize(across(everything(), ~ sum(is.na(.)), .names = "missing_{col}"))
-View(mishandled_missing_by_year)
-
-# save cleaned file to disk
-write.csv(mishandled_data, ONTIME_DATA_FILE)
 
 print(summary(mishandled_data))
 

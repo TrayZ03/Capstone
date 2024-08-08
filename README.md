@@ -9,3 +9,19 @@
 #### Hypothesis: Baggage on flights that have been delayed or canceled is more likely to be mishandled. We therefore expect a significant positive correlation between these variables.
 
 #### Predictions:  For every 15 minutes a flight is delayed, there is a 5% increase in the likelihood that baggage will be mishandled. If a flight is canceled, the risk increases by 20%.
+
+## Setup 
+
+To run this project, follow these steps:
+
+1. *Clone the repo* to your environment.
+2. *Download the datasets*. The datasets are too large for GitHub's standard 50Mb limit. They can be [downloaded here](<drive-link-goes-here>).
+3. *Move datasets to the `data/` directory and unzip.
+4. *Set `PROJ_PATH` in `/scripts/main.R`*. This project path variable should point to the root directory of the repo in your environment.
+4. *Run `/scripts/main.R`*. This script performs all data processing and modeling in sequence -- it takes a while.
+
+NB: Each script can be run independently but currently you need to set `PROJ_PATH` in individually in each script.
+
+NB: All scripts are called by `main.R` except `scripts/prelim_eda.R` which generates EDA plots.
+
+
