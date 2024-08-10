@@ -1,6 +1,8 @@
 # Set local project and data path
 
-PROJ_PATH <- "C:\\Users\\trace\\OneDrive\\Documents\\Capstone\\Capstone-Repo-Shared" # change project path for local environment
+# Comment out unused path
+# PROJ_PATH <- "C:\\Users\\trace\\OneDrive\\Documents\\Capstone\\Capstone-Repo-Shared" # Tracey's local environment
+PROJ_PATH <- "/Users/jessweeks/Documents/Capstone" # Jess' local environment
 
 ZIP_PREFIX <- 'On_Time_Reporting_Carrier_On_Time_Performance_(1987_present)_'
 YEAR_RANGE <- 2016:2018
