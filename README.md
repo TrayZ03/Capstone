@@ -22,7 +22,7 @@ To run this project, follow these steps:
 
 ***Notes***: 
 
-- Each script can be run independently but currently you need to set `PROJ_PATH` in individually in each script.
+- Each script can be run independently but currently you need to set `PROJ_PATH` individually in each script.
 - All scripts are called by `main.R` except `/scripts/data-merge-csvs-online` and `scripts/prelim_eda.R`
 - `/scripts/data-merge-csvs-online` merges large .csvs and will not run - it depends on a large number of large datasets which are currently not available at the Drive link above.
 - `scripts/prelim_eda.R` generates EDA plots.
