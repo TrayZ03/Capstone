@@ -1,6 +1,6 @@
 # !/usr/local/bin/Rscript
 
-# PROJ_PATH <- "C:\\Users\\trace\\OneDrive\\Documents\\Capstone\\Capstone_Shared_Repo" # change project path for local environment
+# PROJ_PATH <- "C:/Users/trace/OneDrive/Documents/Capstone/Capstone-Repo-Shared" # change project path for local environment
 # PROJ_PATH <- "/Users/jessweeks/Documents/Capstone/Capstone_Shared_Repo/Capstone-main" # change project path for local environment
 
 source(file.path(PROJ_PATH, "constants.R"))

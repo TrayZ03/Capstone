@@ -2,6 +2,7 @@
 
 ####### Setup #########
 # source constants
+
 PROJ_PATH <- "/Users/jessweeks/Documents/Capstone/Capstone_Shared_Repo/Capstone-main" # change project path for local environment
 source(file.path(PROJ_PATH, "constants.R"))
 

@@ -1,6 +1,6 @@
 # Set local project and data path
 
-# PROJ_PATH <- "C:\\Users\\trace\\OneDrive\\Documents\\Capstone\\super-sniffle" # change project path for local environment
+# PROJ_PATH <- "C:/Users/trace/OneDrive/Documents/Capstone/Capstone-Repo-Shared" # change project path for local environment
 # PROJ_PATH <- "/Users/jessweeks/Documents/Capstone/Capstone_Shared_Repo/Capstone-main" # change project path for local environment
 
 ZIP_PREFIX <- 'On_Time_Reporting_Carrier_On_Time_Performance_(1987_present)_'
