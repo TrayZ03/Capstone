@@ -1,6 +1,7 @@
 # Set local project and data path
 
-PROJ_PATH <- "C:\\Users\\trace\\OneDrive\\Documents\\Capstone\\Capstone-Repo-Shared" # change project path for local environment
+# PROJ_PATH <- "C:\\Users\\trace\\OneDrive\\Documents\\Capstone\\super-sniffle" # change project path for local environment
+# PROJ_PATH <- "/Users/jessweeks/Documents/Capstone/Capstone_Shared_Repo/Capstone-main" # change project path for local environment
 
 ZIP_PREFIX <- 'On_Time_Reporting_Carrier_On_Time_Performance_(1987_present)_'
 YEAR_RANGE <- 2016:2018
@@ -22,10 +23,14 @@ ONTIME_FEATURES <- c("Year", "Month", "Reporting_Airline", "DepDelay", "ArrDelay
 BAGGAGE_DATA_FILE <- file.path(DATA_PATH, "Commercial_Aviation_-_Mishandled_Baggage_and_Mishandled_Wheelchairs_and_Scooter_20240717.csv")
 BAGGAGE_FEATURES <- c("YEAR", "MONTH", "CARRIER", "PASSENGERS", "MISHANDLED_BAGGAGE", "CARRIER_NAME")
 
-# mode data constants
-MODEL_DATA_FILE <- file.path(DATA_PATH, "Model_Data.csv")
+# merged data file
+FLIGHT_DATA_FILE <- file.path(DATA_PATH, "Flight_Data.csv")
+
+# selected data constants
+SELECTED_DATA_FILE <- file.path(DATA_PATH, "Selected_Data.csv")
 SELECTED_FEATURES <- c("PASSENGERS", "NUM_FLIGHTS", "PROP_DELAYED", "PROP_CARRIER_DEL", "PROP_WEATHER_DEL", 
                     "PROP_LATEAIRCRAFT_DEL", "MIN_DEP_DEL", "Q1_DEP_DEL", "MED_DEP_DEL", "Q3_DEP_DEL", "MAX_DEP_DEL")
 
 # for testing on small datasets, set to false for final run
 TESTING <- FALSE 
+MODEL_FEATURES <- c( "YEAR", "MONTH", "CARRIER", "PASSENGERS", "MISHANDLED_BAGGAGE", "CARRIER_NAME", "NUM_FLIGHTS", "PROP_DELAYED", "PROP_CARRIER_DEL", "PROP_WEATHER_DEL", "PROP_LATEAIRCRAFT_DEL", "MIN_DEP_DEL", "Q1_DEP_DEL", "MED_DEP_DEL", "Q3_DEP_DEL", "MAX_DEP_DEL", "MISHAND_PASS_RATIO", "MISHAND_FLIGHTS_RATIO", "AVG_MISHAND_RATIO" )

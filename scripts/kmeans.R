@@ -1,17 +1,24 @@
+# !/usr/local/bin/Rscript
+
 # source constants
-PROJ_PATH <- "C:\\Users\\trace\\OneDrive\\Documents\\Capstone\\Capstone-Repo-Shared" # change project path for local environment
+
+PROJ_PATH <- "C:/Users/trace/OneDrive/Documents/Capstone/Capstone-Repo-Shared" # change project path for local environment
+# PROJ_PATH <- "/Users/jessweeks/Documents/Capstone/Capstone_Shared_Repo/Capstone-main" # change project path for local environment
+
+
 source(file.path(PROJ_PATH, "constants.R"))
+source(file.path(PROJ_PATH, "helpers.R"))
 
 # load libraries 
 library(tidyverse)
 library(cluster)
 
 # load data
-data <- read_csv(MODEL_DATA_FILE) %>%
-  select(!c("CARRIER", "CARRIER_NAME")) # omit non-numeric features
+flight_data <- read_csv(FLIGHT_DATA_FILE) %>%
+  select(where(is.numeric)) # k-means works only on numeric features
 
 # Perform PCA
-pca_result <- prcomp(data, scale. = TRUE)
+pca_result <- prcomp(flight_data, scale. = TRUE)
 
 # Convert PCA results to a tibble for easier plotting
 pca_scores <- as_tibble(pca_result$x)

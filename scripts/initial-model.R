@@ -1,23 +1,121 @@
+# !/usr/local/bin/Rscript
 
 # source constants
-PROJ_PATH <- "C:\\Users\\trace\\OneDrive\\Documents\\Capstone\\Capstone-Repo-Shared" # change project path for local environment
+
+PROJ_PATH <- "C:/Users/trace/OneDrive/Documents/Capstone/Capstone-Repo-Shared" # change project path for local environment
+# PROJ_PATH <- "/Users/jessweeks/Documents/Capstone/Capstone_Shared_Repo/Capstone-main" # change project path for local environment
+
 source(file.path(PROJ_PATH, "constants.R"))
+source(file.path(PROJ_PATH, "helpers.R"))
 
 # load libraries 
 library(tidyverse)
 library(glmnet)
+library(car)
+library(boot)
 
 # load flight delay dataset as CSV [TZ]
-data <- read_csv(MODEL_DATA_FILE) %>%
-  select(!c("CARRIER", "CARRIER_NAME"))  %>%
-  select(!c("YEAR", "MONTH")) %>% # omit time features
-  select(!c("MISHAND_PASS_RATIO", "MISHAND_FLIGHTS_RATIO", "AVG_MISHAND_RATIO")) # omit features derived from target
+selected_data <- read_csv(SELECTED_DATA_FILE) 
+
+######### One-Hot Encode CARRIER_NAME ##########
+
+# Use model.matrix to one-hot encode the CARRIER_NAME column
+carrier_dummies <- model.matrix(~ CARRIER_NAME - 1, data = selected_data)
+carrier_dummies <- as.data.frame(carrier_dummies)
+
+# Combine the one-hot encoded columns with the rest of the data
+selected_data <- cbind(selected_data %>% select(-CARRIER_NAME), carrier_dummies)
+
+######### Full Linear Regression Model ########## 
+
+# Fit an updated linear model using the selected features
+linear_model <- lm(AVG_MISHAND_RATIO ~ ., data = selected_data )
+
+# Get the summary of the linear model, including p-values
+summary_stats <- summary(linear_model)
+cat("Full Linear Model Summary:\n")
+print(summary_stats)
+
+diagnostic_plots(linear_model, file.path(IMAGES_PATH, "full-linear-model-diagnostic-plots.png"))
 
 
-# Assuming your tibble is named data and has a target variable MISHANDLED_BAGGAGE
-# Prepare the data
-y <- data$MISHANDLED_BAGGAGE
-X <- model.matrix(MISHANDLED_BAGGAGE ~ ., data)[, -1]  # Create a model matrix without the intercept
+######### Updated Linear Regression Model ########## 
+
+# drop HIGH_UTIL_RATIO, CARRIER_NAMEVirgin America which are perfectly collinear with the intercept and prevents VIF values,
+selected_data  <- selected_data  %>%
+  select(!c("HIGH_UTIL_RATIO", "CARRIER_NAMEVirgin America"))
+
+# Fit an updated linear model using the selected features
+linear_model_updated <- lm(AVG_MISHAND_RATIO ~ ., data = selected_data )
+
+# Get the summary of the linear model, including p-values
+summary_stats <- summary(linear_model_updated)
+cat("Updated Linear Model Summary:\n")
+print(summary_stats)
+
+# show updated diagnostic plots
+diagnostic_plots(linear_model_updated, file.path(IMAGES_PATH, "updated-linear-model-diagnostic-plots.png"))
+
+# identify collinearity with aliasing which prevented VIF
+print(alias(linear_model_updated))
+
+# Check for multicollinearity (shown by high VIF values) [JW]
+vif_values <- vif(linear_model_updated)
+cat("VIF Values:\n")
+print(vif_values)
+
+# Convert VIF values to a data frame for plotting [JW]
+vif_df <- as.data.frame(vif_values) %>%
+  rownames_to_column(var = "Variable")
+
+# Plot the VIF values [JW]
+vif_plot <- ggplot(vif_df, aes(x = reorder(Variable, vif_values), y =  vif_values)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  coord_flip() +
+  labs(title = "VIF Values for Linear Model", x = "Variable", y = "VIF") +
+  theme_minimal()
+
+# print the VIF plot
+print(vif_plot)
+
+# Save the VIF plot to a file [JW]
+ggsave(filename = file.path(IMAGES_PATH, "vif-values-plot.png"), plot = vif_plot, width = 8, height = 6)
+
+
+######### Refine Linear Model with Feature Selection ########## 
+
+# drop features with low significance and high multicollinearity
+DROP_FEATURES <- c("PASSENGERS", "NUM_FLIGHTS", "PROP_DELAYED", "PROP_WEATHER_DEL",
+                   "CARRIER_NAMEAmerican Airlines Inc.", "CARRIER_NAMEDelta Air Lines Inc.",
+                   "CARRIER_NAMEEnvoy Air", "CARRIER_NAMEHawaiian Airlines Inc.", 
+                   "CARRIER_NAMESouthwest Airlines Co.", "CARRIER_NAMEUnited Air Lines Inc.",
+                   "MIN_DEP_DEL", "Q1_DEP_DEL", "MED_DEP_DEL", "Q3_DEP_DEL"
+                   )
+
+selected_data <- selected_data  %>%
+  select(-all_of(DROP_FEATURES))
+
+# save updated selected data
+save_selected_data(selected_data)
+
+# fit refined model
+linear_model_refined <- lm(AVG_MISHAND_RATIO ~ ., data = selected_data)
+
+# Get the summary of the linear model, including p-values
+summary_stats <- summary(linear_model_refined)
+cat("Refined Linear Model Summary:\n")
+print(summary_stats)
+
+# show updated diagnostic plots
+diagnostic_plots(linear_model_refined, file.path(IMAGES_PATH, "refined-linear-model-diagnostic-plots.png"))
+
+
+######### Elastic Net Regression Model ########## 
+
+# Prepare the data [JW, TZ]
+y <- selected_data$AVG_MISHAND_RATIO
+X <- model.matrix(AVG_MISHAND_RATIO ~ ., selected_data)[, -1]  # Create a model matrix without the intercept
+
 
 # Fit the Elastic Net regression model
 set.seed(123)  # For reproducibility
@@ -60,22 +158,7 @@ print(coef(final_model))
 cat("R-squared: ", R_squared, "\n")
 cat("Mean Squared Error: ", MSE, "\n")
 
-# Extract coefficients
-coefficients <- as.matrix(coef(final_model))
-selected_features <- rownames(coefficients)[coefficients != 0]
-selected_features <- selected_features[selected_features != "(Intercept)"]
+# Save selected data for modeling
+save_selected_data(selected_data)
 
-# Create a new data frame with only the selected features
-selected_data <- data %>%
-  select(MISHANDLED_BAGGAGE, all_of(selected_features))
 
-# Fit a linear model using the selected features
-linear_model <- lm(MISHANDLED_BAGGAGE ~ ., data = selected_data)
-
-# Get the summary of the linear model, including p-values
-summary_stats <- summary(linear_model)
-cat("Linear Model Summary:\n")
-print(summary_stats)
-
-# plot diagnostic plots
-plot(linear_model)

@@ -1,16 +1,22 @@
+# !/usr/local/bin/Rscript
+
 # source constants
-PROJ_PATH <- "C:\\Users\\trace\\OneDrive\\Documents\\Capstone\\Capstone-Repo-Shared" # change project path for local environment
+
+PROJ_PATH <- "C:/Users/trace/OneDrive/Documents/Capstone/Capstone-Repo-Shared" # change project path for local environment
+# PROJ_PATH <- "/Users/jessweeks/Documents/Capstone/Capstone_Shared_Repo/Capstone-main" # change project path for local environment
+
 source(file.path(PROJ_PATH, "constants.R"))
+source(file.path(PROJ_PATH, "helpers.R"))
 
 # load libraries 
 library(tidyverse)
 
 # load data
-data <- read_csv(MODEL_DATA_FILE) %>%
-  select(SELECTED_FEATURES) # select model specific features
+flight_data <- read_csv(FLIGHT_DATA_FILE) %>%
+  select(where(is.numeric)) # PCA only takes continuous features
 
 # Perform PCA
-pca_result <- prcomp(data, scale. = TRUE)
+pca_result <- prcomp(flight_data , scale. = TRUE)
 
 # Print the PCA results
 summary(pca_result)
