@@ -7,7 +7,7 @@ PROJ_PATH <- "C:/Users/trace/OneDrive/Documents/Capstone/Capstone-Repo-Shared" #
 # project constants, especially paths
 source(file.path(PROJ_PATH, "constants.R"))
 
-# helper funtions
+# helper functions
 source(file.path(PROJ_PATH, "helpers.R"))
 
 # merge monthly on-time flight performance data files
