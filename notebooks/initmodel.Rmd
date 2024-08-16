@@ -1,0 +1,6 @@
+---
+title: "DSE Capstone - Initial Model."
+author: "Tracey Zicherman"
+date: "2024-06-06"
+output: pdf
+---

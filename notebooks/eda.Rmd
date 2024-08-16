@@ -1,0 +1,79 @@
+unique---
+title: "DSE Capstone - EDA"
+author: "Tracey Zicherman"
+date: "2024-06-06"
+output: word_document
+---
+
+## Setup
+
+```{r}
+# project level constants
+PROJ_PATH <- "/cloud/project"
+DATA_PATH <- file.path(PROJ_PATH, "data")
+GLOBAL_RENV_PATH <- "/cloud/lib/renv"
+```
+
+```{r renv}
+# Set custom library path where renv is installed
+
+.libPaths(c(GLOBAL_RENV_PATH, .libPaths()))
+
+# Print the library paths for debugging
+print(.libPaths())
+
+# Ensure renv is loaded
+if (!requireNamespace("renv", quietly = TRUE)) {
+  stop("renv package is not available. Please install it and restart R.")
+} else {
+  library(renv)
+}
+
+# Activate renv
+renv::activate(project = PROJ_PATH)
+```
+
+
+```{r setup, include=FALSE}
+# set local project path
+PROJ_PATH <- "/Users/home/Google Drive/My Drive/Sidekick/Active Clients/TraceyZicherman@sidekick/DSECapstone/super-sniffle"
+DATA_PATH <- file.path(PROJ_PATH, "data")
+
+# set working directory for R (run in console)
+setwd(PROJ_PATH)
+
+# set working directory for knitr
+knitr::opts_knit$set(root.dir = PROJ_PATH)
+
+# default chunk behavior
+knitr::opts_chunk$set(include=FALSE)
+```
+
+
+```{r libraries}
+library(tidyverse)
+```
+
+## Load data
+
+```{r load_baggage}
+baggage <- read_csv(file.path(DATA_PATH, "Commercial_Aviation_-_Mishandled_Baggage_and_Mishandled_Wheelchairs_and_Scooter_20240717.csv"))
+```
+
+
+```{r}
+baggage %>%
+  group_by(YEAR, MONTH) %>%
+  count()
+```
+
+
+```{r}
+ontime <- read_csv(file.path(DATA_PATH, "On_Time_Marketing_Carrier_On_Time_Performance_(Beginning_January_2018)_2020_12.csv"))
+```
+```{r}
+ontime %>%
+  group_by(Year, Month) %>%
+  count()
+```
+

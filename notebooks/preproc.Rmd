@@ -1,0 +1,38 @@
+---
+title: "DSE Capstone - Preprocessing and Feature Engineering."
+author: "Tracey Zicherman"
+date: "2024-06-06"
+output: pdf
+---
+
+```{r constants}
+PROJ_PATH <- "/cloud/project" # path for Posit
+# PROJ_PATH <- "C:\\Users\\trace\\OneDrive\\Documents\\Capstone\\super-sniffle" # change project path for local environment
+DATA_PATH <- file.path(PROJ_PATH, "data")
+IMAGES_PATH <- file.path(PROJ_PATH, "images")
+
+# on-time data constants
+ONTIME_DATA_FILE <- file.path(DATA_PATH, "Cleaned_On_Time_Marketing_Carrier_On_Time_Performance_January_2018_December_2021.csv")
+ONTIME_FEATURES <- c("Year", "Month", "Marketing_Airline_Network",
+                     "CarrierDelay", "WeatherDelay", "LateAircraftDelay", "SecurityDelay", "NASDelay", 
+                     "Cancelled", "Diverted", "ArrDelay", "DepDelay")
+
+# baggage data constants
+BAGGAGE_DATA_FILE <- file.path(DATA_PATH, "Commercial_Aviation_-_Mishandled_Baggage_and_Mishandled_Wheelchairs_and_Scooter_20240717.csv")
+BAGGAGE_FEATURES <- c("YEAR", "MONTH", "CARRIER", "PASSENGERS", "MISHANDLED_BAGGAGE")
+```
+
+```{r libraries}
+# download necessary libraries
+library(tidyverse)
+```
+
+```{r load_ontime_data}
+ontime_data <- read_csv(ONTIME_DATA_FILE) %>%
+  select(ONTIME_FEATURES)
+```
+
+```{r load_baggage_data}
+baggage_data <- read_csv(BAGGAGE_DATA_FILE) %>%
+  select(BAGGAGE_FEATURES)
+```

@@ -6,7 +6,7 @@
 
 # source constants
 
-PROJ_PATH <- "C:/Users/trace/OneDrive/Documents/Capstone/Capstone-Repo-Shared" # change project path for local environment
+# PROJ_PATH <- "C:\Users\trace\OneDrive\Documents\Capstone\Capstone-Shared-Repo" # change project path for local environment
 # PROJ_PATH <- "/Users/jessweeks/Documents/Capstone/Capstone_Shared_Repo/Capstone-main" # change project path for local environment
 
 source(file.path(PROJ_PATH, "constants.R"))
@@ -24,11 +24,11 @@ library(factoextra)
 
 
 # load flight delay dataset as CSV [TZ]
-selected_data <- read_csv(SELECTED_DATA_FILE) 
+model_tuning_data <- read_csv(INITIAL_MODEL_DATA_FILE) # this data is pre-scaled in data-processing.R and one-hot encoded
 
 # Prepare the data [JW]
-y <- selected_data$AVG_MISHAND_RATIO
-X <- model.matrix(AVG_MISHAND_RATIO ~ ., selected_data)[, -1]  # Create a model matrix without the intercept
+y <- model_tuning_data$AVG_MISHAND_RATIO
+X <- model.matrix(AVG_MISHAND_RATIO ~ ., model_tuning_data)[, -1]  # Create a model matrix without the intercept
 
 
 ######## PCA Tuning ##########
@@ -145,29 +145,10 @@ coef_plot <- plot(final_model, "lambda", label = TRUE)
 
 ggsave(filename = file.path(IMAGES_PATH, "elastic-net-coefficients-plot.png"), plot = coef_plot, width = 8, height = 6)
 
-# Extract coefficients
-coefficients <- as.matrix(coef(final_model))
-SELECTED_FEATURES <- rownames(coefficients)[coefficients != 0]
-SELECTED_FEATURES <- SELECTED_FEATURES[SELECTED_FEATURES != "(Intercept)"]
-
-# Remove backticks from SELECTED_FEATURES
-SELECTED_FEATURES <- gsub("`", "", SELECTED_FEATURES)
-
-# Save the SELECTED_FEATURES vector to the constants.R file only if it doesn't exist
-constants_file <- file.path(PROJ_PATH, "constants.R")
-
-# Check if SELECTED_FEATURES already exists in constants.R
-if (!any(grepl("SELECTED_FEATURES", readLines(constants_file)))) {
-  write(paste("SELECTED_FEATURES <- c(", paste0('"', SELECTED_FEATURES, '"', collapse = ", "), ")"), 
-        file = constants_file, append = TRUE)
-}
-
-write_csv(selected_data, SELECTED_DATA_FILE)
-
 
 ########################### Final Linear Model ################################
 
-linear_model_final <- lm(AVG_MISHAND_RATIO ~ ., data = selected_data)
+linear_model_final <- lm(AVG_MISHAND_RATIO ~ ., data = model_tuning_data)
 
 # Get the summary of the linear model, including p-values
 summary_stats <- summary(linear_model_final)
@@ -229,7 +210,7 @@ ctrl <- trainControl(
 # Train the Random Forest model using grid search for mtry
 rf_model <- train(
   AVG_MISHAND_RATIO ~ ., 
-  data = selected_data, 
+  data = model_tuning_data, 
   method = "rf", 
   tuneGrid = param_grid, 
   trControl = ctrl
@@ -254,8 +235,8 @@ ggsave(filename = file.path(IMAGES_PATH, "random-forest-grid-search-mtry.png"), 
 ntree_values <- c(50, 100, 200, 500)
 ntree_results <- sapply(ntree_values, function(ntree) {
   rf_temp <- randomForest(
-    x = selected_data %>% select(-AVG_MISHAND_RATIO), 
-    y = selected_data$AVG_MISHAND_RATIO,
+    x = model_tuning_data %>% select(-AVG_MISHAND_RATIO), 
+    y = model_tuning_data$AVG_MISHAND_RATIO,
     ntree = ntree,
     mtry = rf_model$bestTune$mtry,
     nodesize = 10,
@@ -285,8 +266,8 @@ print(best_ntree)
 
 # Use the best hyperparameters to build the final Random Forest model
 final_rf_model <- randomForest(
-  x = selected_data %>% select(-AVG_MISHAND_RATIO),  # Exclude the target variable from features
-  y = selected_data$AVG_MISHAND_RATIO,  # Target variable
+  x = model_tuning_data %>% select(-AVG_MISHAND_RATIO),  # Exclude the target variable from features
+  y = model_tuning_data$AVG_MISHAND_RATIO,  # Target variable
   ntree = best_ntree,              # Number of trees
   mtry = rf_model$bestTune$mtry,                 # Number of variables to try at each split
   nodesize = 10,         # Minimum size of terminal nodes

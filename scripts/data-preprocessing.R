@@ -5,7 +5,7 @@
 
 ########## Initial Setup ###########
 
-PROJ_PATH <- "C:/Users/trace/OneDrive/Documents/Capstone/Capstone-Repo-Shared" # change project path for local environment
+# PROJ_PATH <- "C:\Users\trace\OneDrive\Documents\Capstone\Capstone-Shared-Repo" # change project path for local environment
 # PROJ_PATH <- "/Users/jessweeks/Documents/Capstone/Capstone_Shared_Repo/Capstone-main" # change project path for local environment
 
 source(file.path(PROJ_PATH, "constants.R"))
@@ -81,7 +81,7 @@ flight_data <- flight_data %>%
          )
 
 # Write the merged tibble to a CSV file
-write_csv(flight_data, FLIGHT_DATA_FILE)
+save_data(flight_data, FLIGHT_DATA_FILE, "FLIGHT_FEATURES")
 
 
 ###################### Create Selected Dataset for Modeling ####################
@@ -89,32 +89,25 @@ write_csv(flight_data, FLIGHT_DATA_FILE)
 ########## Final Feature Selection ########## 
 
 # drop columns
-selected_data <- flight_data %>%
+preprocessed_data <- flight_data %>%
   select(!c("CARRIER"))  %>% # redundant, use CARRIER_NAME
   select(!c("YEAR", "MONTH")) %>% # drop time information
   select(!c("MISHAND_PASS_RATIO", "MISHAND_FLIGHTS_RATIO", "MISHANDLED_BAGGAGE")) # omit features derived from target
 
-########## Standardize the data ########## 
-
-# Standardizing numeric columns [TZ]
-numeric_cols <- selected_data %>% select(where(is.numeric)) %>% colnames()
-
-selected_data[numeric_cols] <- scale(selected_data[numeric_cols])
-
 ########## Final Checks and Cleanups ########## 
 
 # Identify constant columns
-constant_columns <- sapply(selected_data, function(x) length(unique(x)) == 1)
+constant_columns <- sapply(preprocessed_data, function(x) length(unique(x)) == 1)
 
 # Identify columns with all zeros
-zero_columns <- sapply(selected_data, function(x) all(x == 0))
+zero_columns <- sapply(preprocessed_data, function(x) all(x == 0))
 
 # Combine the results
 problematic_columns <- which(constant_columns | zero_columns)
 
 # remove outliers
-selected_data <- selected_data %>%
+preprocessed_data <- preprocessed_data %>%
   slice(-c(7, 31, 43))
 
-# Save selected data for modeling
-save_selected_data(selected_data)
+# Save preprocessed unstandardized data for modeling
+save_data(preprocessed_data, PREPROCESSED_DATA_FILE, "PREPROCESSED_FEATURES")
