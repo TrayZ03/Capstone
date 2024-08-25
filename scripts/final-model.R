@@ -3,6 +3,7 @@
 ###################################### Setup ###################################
 
 # set paths
+
 # PROJ_PATH <- "C:\Users\trace\OneDrive\Documents\Capstone\Capstone-Shared-Repo" # change project path for local environment
 # PROJ_PATH <- "/Users/jessweeks/Documents/Capstone/Capstone_Shared_Repo/Capstone-main" # change project path for local environment
 
@@ -67,26 +68,27 @@ diagnostic_plots(linear_model_final, file.path(IMAGES_PATH, "final-linear-model-
 x <- model.matrix(AVG_MISHAND_RATIO ~ . - 1, data = final_model_data)
 y <- final_model_data$AVG_MISHAND_RATIO
 
-##################### Elastic Net Model #####################
+##################### Elastic Net Model with Alpha Tuning #####################
 
-# Set up a grid of alpha and lambda values [JW]
+# Set up a grid of alpha and lambda values
 alpha_values <- seq(0, 1, by = 0.1)  # Range of alpha values from 0 (Ridge) to 1 (Lasso)
 lambda_values <- 10^seq(-3, 3, length = 100)  # Range of lambda values on a log scale
 
-# Set variables to store results [JW]
+# Initialize variables to store results
 best_alpha <- NULL
 best_lambda <- NULL
 best_model <- NULL
-lowest_cv_error <- Inf # Start with infinite
+lowest_cv_error <- Inf  # Initialize with infinity
 
-# set seed for reproducibility
-set.seed(123) # [JW, TZ]
+# Set seed for reproducibility
+set.seed(123)
 
-# Grid search [JW]
+# Perform grid search over alpha values
 for (alpha in alpha_values) {
+  # Perform cross-validation with glmnet
   cv_model <- cv.glmnet(x, y, alpha = alpha, lambda = lambda_values, nfolds = 10)
   
-  # If this model has a lower cross-validation error, save it as the best model
+  # Track the model with the lowest cross-validation error
   if (min(cv_model$cvm) < lowest_cv_error) {
     lowest_cv_error <- min(cv_model$cvm)
     best_alpha <- alpha
@@ -95,35 +97,35 @@ for (alpha in alpha_values) {
   }
 }
 
-# Print the best alpha and lambda
-print(paste("Best alpha: ", best_alpha)) # The best alpha model chosen by this method (0) corresponds to ridge regression, not elastic net (between 0 and 1)
-print(paste("Best lambda: ", best_lambda))
+# Output the best alpha and lambda values found
+cat("Best alpha:", best_alpha, "\n")
+cat("Best lambda:", best_lambda, "\n")
 
-# Fit the final model with the best lambda
+# Fit the final model using the best alpha and lambda
 elastic_net_model <- glmnet(x, y, alpha = best_alpha, lambda = best_lambda)
 
-# Print the model summary
+# Summarize the final model
 print(elastic_net_model)
 
-# Predict on the entire data using the best lambda from CV
+# Make predictions on the entire data using the best lambda
 elastic_net_predictions <- predict(elastic_net_model, newx = x, s = "lambda.min")
 
-# Calculate metrics for the Elastic Net model
+# Calculate evaluation metrics for the Elastic Net model
 elastic_net_rmse <- sqrt(mean((y - elastic_net_predictions)^2))
 elastic_net_r2 <- 1 - sum((y - elastic_net_predictions)^2) / sum((y - mean(y))^2)
 elastic_net_mae <- mean(abs(y - elastic_net_predictions))
 
-# Print the summary of the Elastic Net model
+# Output the evaluation metrics
 cat("Elastic Net Model Summary:\n")
 cat("Best Lambda (Shrinkage Parameter):", best_lambda, "\n")
 
-# Extract and sparse matrix of coefficients
+# Extract the coefficients for interpretation
 coef_estimates <- coef(elastic_net_model, s = "lambda.min")
 
-# Convert to a regular matrix
+# Convert sparse matrix of coefficients to a regular matrix
 coef_matrix <- as.matrix(coef_estimates)
 
-# Filter out the zero coefficients for a cleaner output
+# Filter out zero coefficients for clarity
 non_zero_coefs <- coef_matrix[coef_matrix != 0, , drop = FALSE]
 
 # Print the non-zero coefficients
@@ -149,13 +151,38 @@ rf_rmse <- sqrt(mean((y - rf_predictions)^2))
 rf_r2 <- 1 - sum((y - rf_predictions)^2) / sum((y - mean(y))^2)
 rf_mae <- mean(abs(y - rf_predictions))
 
-##################### Results #####################
+######################### Cross-Validation for Linear Model #########################
 
-# Create a tibble with the results from both models
+# Define cross-validation settings
+train_control <- trainControl(method = "cv", number = 10) # 10-fold cross-validation
+
+# Perform cross-validation
+lm_cv_model <- train(
+  AVG_MISHAND_RATIO ~ ., 
+  data = final_model_data,
+  method = "lm",
+  trControl = train_control,
+  metric = "RMSE"
+)
+
+# Calculate predictions on the final model data
+lm_predictions <- predict(lm_cv_model, final_model_data)
+
+# Compute the RMSE, R-squared, and MAE using postResample
+cv_metrics <- postResample(pred = lm_predictions, obs = y)
+
+cv_rmse <- cv_metrics["RMSE"]
+cv_r2 <- cv_metrics["Rsquared"]
+cv_mae <- cv_metrics["MAE"]
+
+##################### Evaluation Results #####################
+
+# Create a tibble with the results from all models
 results <- tibble(
   Metric = c("RMSE", "R-Squared", "MAE"),
   Elastic_Net = c(elastic_net_rmse, elastic_net_r2, elastic_net_mae),
-  Random_Forest = c(rf_rmse, rf_r2, rf_mae)
+  Random_Forest = c(rf_rmse, rf_r2, rf_mae),
+  Linear_Model_CV = c(cv_rmse, cv_r2, cv_mae)  # Add cross-validated metrics for the linear model
 )
 
 # Print the results

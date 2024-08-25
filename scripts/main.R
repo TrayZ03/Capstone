@@ -11,24 +11,27 @@ source(file.path(PROJ_PATH, "constants.R"))
 # helper functions
 source(file.path(PROJ_PATH, "helpers.R"))
 
-# merge monthly on-time flight performance data files
+# merge monthly on-time flight performance data files - takes a LONG time
 # source(file.path(SCRIPTS_PATH, "data-merge-csvs-ontime.R"))
 
-# preliminary EDA
-# source(file.path(SCRIPTS_PATH, "prelim-eda.R"))
-
 # preliminary cleaning on-time flight performance data files
-# source(file.path(SCRIPTS_PATH, "data-clean-ontime.R"))
+source(file.path(SCRIPTS_PATH, "data-clean-ontime.R"))
+
+# preliminary EDA
+source(file.path(SCRIPTS_PATH, "prelim-eda.R"))
 
 # final pre-processing, feature selection and engineering
 source(file.path(SCRIPTS_PATH, "data-preprocessing.R"))
 
 # additional post-processing EDA
-# source(file.path(SCRIPTS_PATH, "secondary-eda.R"))
+source(file.path(SCRIPTS_PATH, "secondary-eda.R"))
 
 # unsupervised methods on model data
-# source(file.path(SCRIPTS_PATH, "pca.R"))
-# source(file.path(SCRIPTS_PATH, "kmeans.R"))
+source(file.path(SCRIPTS_PATH, "pca.R"))
+source(file.path(SCRIPTS_PATH, "kmeans.R"))
+
+# final post-processing EDA
+source(file.path(SCRIPTS_PATH, "final-eda.R"))
 
 # initial regression models
 source(file.path(SCRIPTS_PATH, "initial-model.R"))

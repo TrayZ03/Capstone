@@ -54,6 +54,5 @@ rsconnect/
 .DS_Store
 
 # Large files
-renv/
 *.csv
 *.zip
